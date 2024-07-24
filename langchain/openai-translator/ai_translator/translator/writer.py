@@ -14,13 +14,13 @@ class Writer:
     def __init__(self):
         pass
 
-    def save_translated_book(self, book: Book, ouput_file_format: str):
+    def save_translated_book(self, book: Book, ouput_file_format: str, target_language: str = "Chinese"):
         LOG.debug(ouput_file_format)
 
         if ouput_file_format.lower() == "pdf":
-            output_file_path = self._save_translated_book_pdf(book)
+            output_file_path = self._save_translated_book_pdf(book, target_language)
         elif ouput_file_format.lower() == "markdown":
-            output_file_path = self._save_translated_book_markdown(book)
+            output_file_path = self._save_translated_book_markdown(book, target_language)
         else:
             LOG.error(f"不支持文件类型: {ouput_file_format}")
             return ""
@@ -30,9 +30,9 @@ class Writer:
         return output_file_path
 
 
-    def _save_translated_book_pdf(self, book: Book, output_file_path: str = None):
+    def _save_translated_book_pdf(self, book: Book, output_file_path: str = None, target_language: str = "Chinese"):
 
-        output_file_path = book.pdf_file_path.replace('.pdf', f'_translated.pdf')
+        output_file_path = book.pdf_file_path.replace('.pdf', f'_translated-{target_language}.pdf')
 
         LOG.info(f"开始导出: {output_file_path}")
 
@@ -84,8 +84,8 @@ class Writer:
         return output_file_path
 
 
-    def _save_translated_book_markdown(self, book: Book, output_file_path: str = None):
-        output_file_path = book.pdf_file_path.replace('.pdf', f'_translated.md')
+    def _save_translated_book_markdown(self, book: Book, output_file_path: str = None, target_language: str = "Chinese"):
+        output_file_path = book.pdf_file_path.replace('.pdf', f'_translated-{target_language}.md')
 
         LOG.info(f"开始导出: {output_file_path}")
         with open(output_file_path, 'w', encoding='utf-8') as output_file:
