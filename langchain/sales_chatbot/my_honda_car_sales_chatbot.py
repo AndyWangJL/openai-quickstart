@@ -1,18 +1,16 @@
 import gradio as gr
 
-from langchain_openai import OpenAIEmbeddings
-from langchain.chains import RetrievalQA
-from langchain_openai import ChatOpenAI
+from langchain_openai import OpenAIEmbeddings, ChatOpenAI
+from langchain.chains import RetrievalQA, LLMChain, StuffDocumentsChain
 from langchain_community.vectorstores import FAISS
-from langchain.prompts import PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate, \
-    HumanMessagePromptTemplate
-from langchain.chains import LLMChain, StuffDocumentsChain
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.prompts import (PromptTemplate, ChatPromptTemplate, SystemMessagePromptTemplate,
+                               HumanMessagePromptTemplate)
+from utils import ArgumentParser
 
 
-def initialize_sales_bot(vector_store_dir: str = "real_estates_sale"):
+def initialize_sales_bot(vector_store_dir: str = "car_estates_sale"):
     db = FAISS.load_local(vector_store_dir, OpenAIEmbeddings(), allow_dangerous_deserialization=True)
-    llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=1)
+    llm = ChatOpenAI(model_name=args.model_name, temperature=1)
 
     # 自定义的 SystemMessagePromptTemplate
     custom_system_message_template = SystemMessagePromptTemplate(
@@ -63,8 +61,8 @@ def initialize_sales_bot(vector_store_dir: str = "real_estates_sale"):
 def sales_chat(message, history):
     print(f"[message]{message}")
     print(f"[history]{history}")
-    # TODO: 从命令行参数中获取
-    enable_chat = True
+    # 从命令行参数中获取
+    enable_chat = args.enable_chat
 
     ans = SALES_BOT({"query": message})
     # 如果检索出结果，或者开了大模型聊天模式
@@ -81,7 +79,7 @@ def sales_chat(message, history):
 def launch_gradio():
     demo = gr.ChatInterface(
         fn=sales_chat,
-        title="房产销售",
+        title="本田汽车销售",
         # retry_btn=None,
         # undo_btn=None,
         chatbot=gr.Chatbot(height=600),
@@ -90,8 +88,16 @@ def launch_gradio():
     demo.launch(share=True, server_name="0.0.0.0")
 
 
+def parse_arguments():
+    argument_parser = ArgumentParser()
+    return argument_parser.parse_arguments()
+
+
 if __name__ == "__main__":
-    # 初始化房产销售机器人
+    # 解析命令行参数
+    args = parse_arguments()
+    print(args)
+    # 初始化本田汽车销售机器人
     initialize_sales_bot()
     # 启动 Gradio 服务
     launch_gradio()
